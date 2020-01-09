@@ -1,0 +1,44 @@
+version: 3
+jobs:
+  test:
+    docker:
+      - image: circleci/golang:1.13
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: |
+              go mod download
+      - run:
+          name: Run Tests
+          command: |
+              go test
+
+  deploy:
+    working_directory: ~/deploy
+    docker:
+      - image: mesosphere/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Production Build
+          command: |
+            go mod download
+            go build -o main .
+      - run:
+          name: Deploy project
+          command: |
+            echo "TODO"
+
+workflows:
+  version: 2
+  test-deploy:
+      jobs:
+        - test
+        - deploy:
+            requires:
+              - test
+            filters:
+              branches:
+                only:
+                  - master

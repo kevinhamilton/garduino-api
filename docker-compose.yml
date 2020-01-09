@@ -1,0 +1,40 @@
+version: '3'
+
+networks:
+    backend:
+      driver: bridge
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    volumes:
+      - "./:/app"
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    links:
+      - db
+    environment:
+      - "DB_HOST=garduino-api_db_1"
+      - "DB_USERNAME=garduino"
+      - "DB_PASSWORD=secret"
+      - "DB_SCHEMA=garduino"
+    networks:
+      - backend
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: garduino
+      MYSQL_USER: garduino
+      MYSQL_PASSWORD: secret
+    ports:
+      - '3306:3306'
+    networks:
+      - backend
